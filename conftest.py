@@ -1,6 +1,7 @@
 import pytest
 import requests
 import allure
+from selenium import webdriver
 
 
 class ApiClient:
@@ -21,3 +22,18 @@ class ApiClient:
 @pytest.fixture
 def users_api():
     return ApiClient(base_address="https://jsonplaceholder.typicode.com/")
+
+
+@pytest.fixture(scope="session")
+def setup(request):
+    print("initiating chrome driver")
+    driver = webdriver.Chrome(r'C:/Drivers/chromedriver.exe')
+    session = request.node
+    for item in session.items:
+        cls = item.getparent(pytest.Class)
+        setattr(cls.obj, "driver", driver)
+    driver.get("http://google.com/")
+    driver.maximize_window()
+
+    yield driver
+    driver.close()
